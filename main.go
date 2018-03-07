@@ -17,7 +17,7 @@ const pageURL = "https://interfacelift.com/wallpaper/downloads/date/wide_16:9/25
 const savePath = "/Users/jinweiliu/Pictures/wallpaper/"
 
 func main() {
-	logger.Log("start check save path")
+	logger.Info("start check save path")
 	pathInfo, err := os.Stat(savePath)
 	if err == nil {
 		if !pathInfo.IsDir() {
@@ -37,7 +37,7 @@ func main() {
 		}
 	}
 
-	logger.Log("start get pictures.")
+	logger.Info("start get pictures.")
 	doc, err := goquery.NewDocument(pageURL)
 	if err != nil {
 		logger.Error("get page error: " + err.Error())
@@ -118,7 +118,7 @@ func download(url string, chanel chan int) {
 		chanel <- 0 // 下载完成或者出错后通知主线程
 	}()
 
-	logger.Log("start fetch " + "https://interfacelift.com" + url)
+	logger.Info("start fetch " + "https://interfacelift.com" + url)
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", "https://interfacelift.com"+url, nil)
 	req.Header.Set("Host", "interfacelift.com")
@@ -149,5 +149,5 @@ func download(url string, chanel chan int) {
 		return
 	}
 
-	logger.Log("save status " + strconv.FormatInt(written, 10))
+	logger.Info("save status " + strconv.FormatInt(written, 10))
 }
