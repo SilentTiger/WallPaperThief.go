@@ -1,7 +1,6 @@
 package main
 
 import (
-	"hello_go/logger"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +8,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"WallPaperThief/logger"
 
 	"github.com/PuerkitoBio/goquery"
 )
