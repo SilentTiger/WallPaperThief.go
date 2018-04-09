@@ -15,10 +15,11 @@ import (
 const rootPath = "/Users/jinweiliu/Pictures/wallpaper/"
 
 func main() {
+
 	runtime.GOMAXPROCS(2)
 
 	var finishChannel chan int
-	var dataChannel chan downloader.DataItem
+	var dataChannel = make(chan downloader.DataItem, 100)
 
 	directoryStatus := true
 	directoryStatus = directoryStatus && initDirectories(rootPath+"a/")
@@ -29,12 +30,42 @@ func main() {
 		return
 	}
 
+	logger.Info("start init downloaders")
 	var downloaders []downloader.IDownloader
 	res, err := downloaderFactory("Interfacelift", "a/", finishChannel, dataChannel, listFile(rootPath+"a/"))
-	if err != nil {
+	if err == nil {
 		downloaders = append(downloaders, res)
 	}
 
+	res, err = downloaderFactory("Interfacelift", "b/", finishChannel, dataChannel, listFile(rootPath+"b/"))
+	if err == nil {
+		downloaders = append(downloaders, res)
+	}
+
+	go func() {
+		for dataItem := range dataChannel {
+			logger.Info(dataItem.FileName)
+			logger.Info(len(downloaders))
+		}
+	}()
+
+	logger.Info("start all downloaders")
+	for _, d := range downloaders {
+		go d.Start()
+	}
+
+	finishCount := 0
+	for {
+		logger.Info("check finish channel")
+		logger.Info(len(downloaders))
+		if finishCount < len(downloaders) {
+			<-finishChannel
+			finishCount++
+			logger.Info("one downloader finished")
+		} else {
+			break
+		}
+	}
 }
 
 func downloaderFactory(downloaderType string, subDirectory string, finishChannel chan int, dataChannel chan downloader.DataItem, existPictures []string) (res downloader.IDownloader, err error) {
@@ -44,6 +75,8 @@ func downloaderFactory(downloaderType string, subDirectory string, finishChannel
 		break
 	default:
 		err = errors.New("wrong downloaderType value")
+		logger.Error("Init downloader error:")
+		logger.Error(err)
 	}
 
 	return res, err

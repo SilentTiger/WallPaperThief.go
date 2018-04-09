@@ -27,7 +27,9 @@ func NewInterfacelift(subDirectory string, finishChannel chan<- int, dataChannel
 
 // Start 开始下载图片
 func (instance Interfacelift) Start() {
+	logger.Info("Start " + instance.SubDirectory)
 	defer func() {
+		logger.Info("Finish " + instance.SubDirectory)
 		instance.finishChannel <- 1
 	}()
 
