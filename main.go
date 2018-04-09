@@ -18,7 +18,7 @@ func main() {
 
 	runtime.GOMAXPROCS(2)
 
-	var finishChannel chan int
+	var finishChannel = make(chan int)
 	var dataChannel = make(chan downloader.DataItem, 100)
 
 	directoryStatus := true
@@ -45,7 +45,6 @@ func main() {
 	go func() {
 		for dataItem := range dataChannel {
 			logger.Info(dataItem.FileName)
-			logger.Info(len(downloaders))
 		}
 	}()
 
@@ -56,7 +55,6 @@ func main() {
 
 	finishCount := 0
 	for {
-		logger.Info("check finish channel")
 		logger.Info(len(downloaders))
 		if finishCount < len(downloaders) {
 			<-finishChannel

@@ -33,8 +33,6 @@ func (instance Interfacelift) Start() {
 		instance.finishChannel <- 1
 	}()
 
-	logger.Info("start interfacelift")
-
 	doc, err := goquery.NewDocument(pageURL)
 	if err != nil {
 		logger.Error("get page error: " + err.Error())
