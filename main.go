@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os"
 	"runtime"
-	"strconv"
 	"sync"
 
 	"WallPaperThief/logger"
@@ -24,8 +23,7 @@ func main() {
 	var dataChannel = make(chan downloader.DataItem, 100)
 
 	directoryStatus := true
-	directoryStatus = directoryStatus && initDirectories(rootPath+"a/")
-	directoryStatus = directoryStatus && initDirectories(rootPath+"b/")
+	directoryStatus = directoryStatus && initDirectories(rootPath)
 
 	if !directoryStatus {
 		logger.Info("init directories failed, exit.")
@@ -47,20 +45,12 @@ func main() {
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
-		logger.Info("start goroutine write")
-
-		defer func() {
-			wg.Done()
-			logger.Info("goroutine defer")
-		}()
+		defer wg.Done()
 
 		for dataItem := range dataChannel {
-			logger.Info("start write " + dataItem.FileName)
-			logger.Info("current data length " + strconv.Itoa(len(dataChannel)))
 			writeFile(rootPath+dataItem.FileName, dataItem.Data)
 			logger.Info("finish write " + dataItem.FileName)
 		}
-		logger.Info("finish goroutine write")
 	}()
 
 	logger.Info("start all downloaders")
@@ -75,7 +65,7 @@ func main() {
 			finishCount++
 			logger.Info("one downloader finished")
 		} else {
-			// 关闭 datachannel
+			// 如果所有的下载器都下载完了就关闭 datachannel
 			close(dataChannel)
 			break
 		}

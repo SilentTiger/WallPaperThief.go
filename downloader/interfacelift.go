@@ -89,7 +89,6 @@ func (instance *Interfacelift) batDownload(urls []string) {
 		res, err := instance.download(url)
 		if err == nil {
 			instance.dataChannel <- res
-			logger.Info("to channel " + url)
 		}
 	}
 }
