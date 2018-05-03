@@ -9,7 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const pageURL = "https://interfacelift.com/wallpaper/downloads/date/wide_16:9/2560x1440/index5.html"
+const pageURL = "https://interfacelift.com/wallpaper/downloads/date/wide_16:9/2560x1440/"
 
 // Interfacelift 下载器
 type Interfacelift struct {

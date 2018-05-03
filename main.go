@@ -32,12 +32,7 @@ func main() {
 
 	logger.Info("start init downloaders")
 	var downloaders []downloader.IDownloader
-	res, err := downloaderFactory("Interfacelift", "a/", finishChannel, dataChannel, listFile(rootPath+"a/"))
-	if err == nil {
-		downloaders = append(downloaders, res)
-	}
-
-	res, err = downloaderFactory("Interfacelift", "b/", finishChannel, dataChannel, listFile(rootPath+"b/"))
+	res, err := downloaderFactory("Interfacelift", "", finishChannel, dataChannel, listFile(rootPath))
 	if err == nil {
 		downloaders = append(downloaders, res)
 	}
