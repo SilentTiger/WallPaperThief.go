@@ -2,12 +2,14 @@ package main
 
 import (
 	"WallPaperThief/downloader"
+	"bytes"
 	"errors"
 	"io"
 	"io/ioutil"
 	"os"
 	"runtime"
 	"strconv"
+	"sync"
 
 	"WallPaperThief/logger"
 )
@@ -42,10 +44,23 @@ func main() {
 		downloaders = append(downloaders, res)
 	}
 
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
 	go func() {
+		logger.Info("start goroutine write")
+
+		defer func() {
+			wg.Done()
+			logger.Info("goroutine defer")
+		}()
+
 		for dataItem := range dataChannel {
-			logger.Info(dataItem.FileName)
+			logger.Info("start write " + dataItem.FileName)
+			logger.Info("current data length " + strconv.Itoa(len(dataChannel)))
+			writeFile(rootPath+dataItem.FileName, dataItem.Data)
+			logger.Info("finish write " + dataItem.FileName)
 		}
+		logger.Info("finish goroutine write")
 	}()
 
 	logger.Info("start all downloaders")
@@ -55,17 +70,21 @@ func main() {
 
 	finishCount := 0
 	for {
-		logger.Info(len(downloaders))
 		if finishCount < len(downloaders) {
 			<-finishChannel
 			finishCount++
 			logger.Info("one downloader finished")
 		} else {
+			// 关闭 datachannel
+			close(dataChannel)
 			break
 		}
 	}
+
+	wg.Wait()
 }
 
+// downloaderFactory 下载器工厂方法
 func downloaderFactory(downloaderType string, subDirectory string, finishChannel chan int, dataChannel chan downloader.DataItem, existPictures []string) (res downloader.IDownloader, err error) {
 	switch downloaderType {
 	case "Interfacelift":
@@ -105,20 +124,18 @@ func initDirectories(path string) bool {
 	return true
 }
 
-func writeFile(absoluteFilename string, data io.Reader) {
+func writeFile(absoluteFilename string, data []byte) {
 	file, err := os.Create(absoluteFilename)
 	if err != nil {
 		logger.Error("create file " + absoluteFilename + " error: " + err.Error())
 		return
 	}
 
-	written, err := io.Copy(file, data)
+	_, err = io.Copy(file, bytes.NewReader(data))
 	if err != nil {
 		logger.Error("write file " + absoluteFilename + " error: " + err.Error())
 		return
 	}
-
-	logger.Info("save status " + strconv.FormatInt(written, 10))
 }
 
 // listFile 列出已经下载的所有文件的文件名

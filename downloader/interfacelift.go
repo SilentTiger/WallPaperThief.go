@@ -2,6 +2,7 @@ package downloader
 
 import (
 	"WallPaperThief/logger"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -88,13 +89,14 @@ func (instance *Interfacelift) batDownload(urls []string) {
 		res, err := instance.download(url)
 		if err == nil {
 			instance.dataChannel <- res
+			logger.Info("to channel " + url)
 		}
 	}
 }
 
 // download 下载 url 所指定的图片
 func (instance *Interfacelift) download(url string) (dataItem DataItem, err error) {
-	logger.Info("start fetch " + "https://interfacelift.com" + url)
+	logger.Info("fetch " + "https://interfacelift.com" + url)
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", "https://interfacelift.com"+url, nil)
 	req.Header.Set("Host", "interfacelift.com")
@@ -113,7 +115,8 @@ func (instance *Interfacelift) download(url string) (dataItem DataItem, err erro
 
 	tmp := strings.Split(url, "/")
 	dataItem.FileName = instance.SubDirectory + tmp[len(tmp)-1]
-	dataItem.Data = res.Body
+	dataItem.Data, err = ioutil.ReadAll(res.Body)
 
+	logger.Info("got " + url)
 	return
 }

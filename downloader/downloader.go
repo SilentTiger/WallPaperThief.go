@@ -1,9 +1,5 @@
 package downloader
 
-import (
-	"io"
-)
-
 // IDownloader 下载器接口，所有的下载器都需要实现此接口
 type IDownloader interface {
 	Start()
@@ -13,7 +9,7 @@ type IDownloader interface {
 // DataItem 单条数据的格式
 type DataItem struct {
 	FileName string
-	Data     io.Reader
+	Data     []byte
 }
 
 // Downloader 下载器结构，所有的下载器都需要继承此结构
