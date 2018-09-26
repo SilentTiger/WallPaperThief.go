@@ -4,6 +4,8 @@ import (
 	"WallPaperThief/downloader"
 	"bytes"
 	"errors"
+	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -13,10 +15,15 @@ import (
 	"WallPaperThief/logger"
 )
 
-const rootPath = "/Users/jinweiliu/Pictures/wallpaper/"
+const defaultPath = "./"
 
 func main() {
 
+	var rootPath string
+	flag.StringVar(&rootPath, "path", defaultPath, "壁纸下载后存储的路径")
+	flag.Parse()
+
+	fmt.Println("save pictures to:", rootPath)
 	runtime.GOMAXPROCS(2)
 
 	var finishChannel = make(chan int)
